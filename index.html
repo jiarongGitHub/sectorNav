@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#wrap {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				width: 50px;
+				height: 50px;
+			}
+			
+			#wrap .home {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 1;
+				width: 100%;
+				height: 100%;
+				background: url(img/home.png) no-repeat;
+				border-radius: 50%;
+				transition: 1s;
+			}
+			
+			#wrap .list {
+				width: 100%;
+				height: 100%;
+			}
+			
+			#wrap .list>img {
+				position: absolute;
+				top: 0;
+				left: 0;
+				border-radius: 50%;
+				margin: 4px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="wrap">
+			<div class="list">
+				<img src="img/clos.png" />
+				<img src="img/full.png" />
+				<img src="img/open.png" />
+				<img src="img/prev.png" />
+				<img src="img/refresh.png" />
+			</div>
+			<div class="home">
+
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload = function() {
+			var imgNode=document.querySelectorAll("#wrap .list img");
+			var home = document.querySelector("#wrap .home");
+			var flag = true;
+			var r=140;
+			
+			/*home上的逻辑*/
+			home.onclick = function() {
+				if(flag) {
+					/*点击时home开始旋转着散出去或是收回来*/
+					home.style.transform = "rotate(-720deg)";
+					for(var i=0;i<imgNode.length;i++){
+						/*设置每个小导航的位置以及旋转效果*/
+						imgNode[i].style.transform="rotate(-1440deg) scale(1)"
+						imgNode[i].style.transition="0.5s "+(i*0.1)+"s ";
+						imgNode[i].style.left=-getPoint(r,i*90/(imgNode.length-1)).left+"px";
+						imgNode[i].style.top=-getPoint(r,i*90/(imgNode.length-1)).top+"px";
+					}
+				} else {
+					home.style.transform = "rotate(0)";
+					for(var i=0;i<imgNode.length;i++){
+						imgNode[i].style.transform="rotate(0deg) scale(1)"
+						/*最先出去的最后回来 加一个延迟时间  但是最后一个不能有延迟 直接回来 所以imgNode.length-1-i*/
+						imgNode[i].style.transition="0.5s "+((imgNode.length-1-i)*0.1)+"s ";
+						imgNode[i].style.left=0+"px";
+						imgNode[i].style.top=0+"px";
+					}
+				}
+				flag = !flag;
+			}
+
+			/*计算每个导航要偏移的left和top值*/
+			function getPoint(r, deg) {
+				/*已知角度和半径计算边长*/
+				/*角度转弧度公式：角度*PI/180*/
+				var left = parseInt(r * Math.sin(deg * Math.PI / 180));
+				var top = parseInt(r * Math.cos(deg * Math.PI / 180));
+				return {
+					left: left,
+					top: top
+				};
+			}
+			
+			/*每一个导航上的逻辑*/
+			for(var i=0;i<imgNode.length;i++){
+				imgNode[i].onclick=function(){
+					/*点击小图片取消延迟*/
+					this.style.transition=".5s";
+					/*点击img导航完成之后，收回来的时候需要转折回来 由-1440转回0  所以加rotate(-1440deg)*/
+					this.style.transform="rotate(-1440deg) scale(2)";
+					this.style.opacity=".5";
+					/*点击时触发过度完成时间*/
+					this.addEventListener("transitionend",fn);
+				}
+			}
+			function fn(){
+				this.style.transform="rotate(-1440deg) scale(1)";
+				this.style.opacity="1";
+				/*取消过度完成的事件监听*/
+				this.removeEventListener("transitionend",fn);
+			}
+		}
+	</script>
+
+</html>
